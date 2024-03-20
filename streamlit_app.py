@@ -39,6 +39,9 @@ conn.close()
 df_resumes['total'] = df_resumes.groupby('source')['count'].transform('sum')
 df_resumes['percentage'] = (df_resumes['count'] / df_resumes['total']) * 100
 
+df_resumes['percentage'] = df_resumes['percentage'].astype(float)
+df_resumes['source_url'] = df_resumes['source_url'].astype(str)
+
 # Crear el gráfico
 fig, ax = plt.subplots(figsize=(10, 6))
 
