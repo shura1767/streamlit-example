@@ -14,6 +14,9 @@ query = "SELECT source, source_url, COUNT(id) as count FROM resumes GROUP BY sou
 # Ejecutar la consulta y obtener los datos en un DataFrame
 df_resumes = pd.read_sql(query, conn)
 
+# Cerrar la conexión a la base de datos
+conn.close()
+
 # Calcular porcentajes para source_url
 total_source_url = df_resumes[df_resumes['source'] == 'source_url']['count'].sum()
 percentage_source_url = (df_resumes[df_resumes['source'] == 'source_url']['count'] / total_source_url) * 100
@@ -22,13 +25,14 @@ percentage_source_url = (df_resumes[df_resumes['source'] == 'source_url']['count
 total_source = df_resumes[df_resumes['source'] == 'source']['count'].sum()
 percentage_source = (df_resumes[df_resumes['source'] == 'source']['count'] / total_source) * 100
 
-# Cerrar la conexión a la base de datos
-conn.close()
+# Crear el gráfico circular si hay datos disponibles
+if not percentage_source_url.empty and not percentage_source.empty:
+    # Crear el gráfico circular
+    fig, ax = plt.subplots()
+    ax.pie([percentage_source_url.values[0], percentage_source.values[0]], labels=['source_url', 'source'], autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-# Crear el gráfico circular
-fig, ax = plt.subplots()
-ax.pie([percentage_source_url.values[0], percentage_source.values[0]], labels=['source_url', 'source'], autopct='%1.1f%%', startangle=90)
-ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-# Mostrar el gráfico
-st.pyplot(fig)
+    # Mostrar el gráfico
+    st.pyplot(fig)
+else:
+    st.write("No hay suficientes datos para mostrar el gráfico circular.")
