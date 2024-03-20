@@ -30,3 +30,22 @@ st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
 #plt.title('Cantidad Total de user_id')
 #st.pyplot(plt.gcf())
 st.info(f"La cantidad total de usuarios es: {df['total_users'][0]}")
+from streamlit.components.v1 import html
+
+html("""
+<div style="font-size: 36px; text-align: center;">
+  <span id="count" style="color: blue;"></span>
+</div>
+
+<script>
+var count = 0;
+var target = {0}; // Aquí debes colocar el valor de la cantidad total de usuarios
+
+setInterval(function() {{
+  if (count < target) {{
+    count++;
+    document.getElementById('count').innerHTML = count;
+  }}
+}}, 50);
+</script>
+""".format(df['total_users'][0]))
