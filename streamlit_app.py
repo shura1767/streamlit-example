@@ -28,5 +28,5 @@ sns.barplot(x=df.index, y='total_users', data=df)
 plt.xlabel('Usuarios')
 plt.ylabel('Cantidad')
 plt.title('Cantidad Total de user_id')
-st.pyplot()
+st.pyplot(plt.gcf())
 
