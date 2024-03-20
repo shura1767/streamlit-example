@@ -1,31 +1,39 @@
 import streamlit as st
 import pandas as pd
-import psycopg2
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Conectarse a la base de datos
-conn = psycopg2.connect(
-    "postgresql://analyst:n5NwBhOz9kEc@ep-soft-king-a5iqrjku.us-east-2.aws.neon.tech/tg"
-)
+# Título del dashboard
+st.title('Dashboard de Análisis de Datos')
 
-# Consulta SQL para obtener la cantidad total de user_id
-query = "SELECT COUNT(user_id) AS total_users FROM users_keys"
+# Subtítulo y descripción
+st.write('Este es un ejemplo básico de un dashboard usando Streamlit.')
 
-# Ejecutar la consulta y obtener los datos en un DataFrame
-df = pd.read_sql(query, conn)
+# Cargar datos (por ejemplo, un archivo CSV)
+@st.cache
+def cargar_datos():
+    datos = pd.read_csv('datos.csv')
+    return datos
 
-# Cerrar la conexión a la base de datos
-conn.close()
+datos = cargar_datos()
 
-# Crear el gráfico circular
-labels = ['Usuarios', 'Otros']
-sizes = [df['total_users'][0], 100 - df['total_users'][0]]
+# Mostrar los datos en una tabla
+st.subheader('Datos')
+st.write(datos)
 
-fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-ax.axis('equal')  # La relación de aspecto igual asegura que el gráfico sea un círculo.
+# Gráfico de barras
+st.subheader('Gráfico de Barras')
+columna = st.selectbox('Seleccione una columna para visualizar', options=datos.columns)
+conteo_valores = datos[columna].value_counts()
+plt.bar(conteo_valores.index, conteo_valores)
+plt.xlabel(columna)
+plt.ylabel('Frecuencia')
+st.pyplot()
 
-# Mostrar el gráfico circular en Streamlit
-st.title('Cantidad Total de user_id')
-st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
-st.pyplot(fig)
+# Gráfico de dispersión
+st.subheader('Gráfico de Dispersión')
+x = st.selectbox('Seleccione una columna para el eje X', options=datos.columns)
+y = st.selectbox('Seleccione una columna para el eje Y', options=datos.columns)
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=x, y=y, data=datos)
+st.pyplot()
