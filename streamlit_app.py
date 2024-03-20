@@ -32,28 +32,21 @@ query2 = "SELECT source, source_url, COUNT(id) as count FROM resumes GROUP BY so
 # Ejecutar la consulta y obtener los datos en un DataFrame
 df_resumes = pd.read_sql(query2, conn)
 
-# Cerrar la conexión a la base de datos
-conn.close()
+# Calcular porcentajes para source_url
+total_source_url = df_resumes[df_resumes['source'] == 'source_url']['count'].sum()
+percentage_source_url = (df_resumes[df_resumes['source'] == 'source_url']['count'] / total_source_url) * 100
 
-# Calcular porcentajes
-df_resumes['total'] = df_resumes.groupby('source')['count'].transform('sum')
-df_resumes['percentage'] = (df_resumes['count'] / df_resumes['total']) * 100
+# Calcular porcentajes para source
+total_source = df_resumes[df_resumes['source'] == 'source']['count'].sum()
+percentage_source = (df_resumes[df_resumes['source'] == 'source']['count'] / total_source) * 100
 
-df_resumes['percentage'] = df_resumes['percentage'].astype(float)
-df_resumes['source_url'] = df_resumes['source_url'].astype(str)
-
-# Crear el gráfico
-fig, ax = plt.subplots(figsize=(10, 6))
-
-# Graficar
-for i, (source, group) in enumerate(df_resumes.groupby('source')):
-    ax.barh(group['source_url'], group['percentage'], label=source)
-
-# Personalizar el gráfico
-ax.set_xlabel('Porcentaje (%)')
-ax.set_ylabel('source_url')
-ax.set_title('Diferencia de source_url vs source en porcentaje en relación a id')
-ax.legend()
+# Crear el gráfico circular
+fig, ax = plt.subplots()
+ax.pie([percentage_source_url, percentage_source], labels=['source_url', 'source'], autopct='%1.1f%%', startangle=90)
+ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
 # Mostrar el gráfico
 st.pyplot(fig)
+
+# Cerrar la conexión a la base de datos
+conn.close()
