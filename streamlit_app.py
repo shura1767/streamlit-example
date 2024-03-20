@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -9,16 +10,22 @@ st.title('Dashboard de Análisis de Datos')
 # Subtítulo y descripción
 st.write('Este es un ejemplo básico de un dashboard usando Streamlit.')
 
-# Cargar datos (por ejemplo, un archivo CSV)
+# Generar datos ficticios
 @st.cache
-def cargar_datos():
-    datos = pd.read_csv('datos.csv')
+def generar_datos(num_filas):
+    np.random.seed(42)
+    datos = pd.DataFrame({
+        'Edad': np.random.randint(18, 65, num_filas),
+        'Género': np.random.choice(['Masculino', 'Femenino'], num_filas),
+        'Ingresos': np.random.normal(50000, 15000, num_filas)
+    })
     return datos
 
-datos = cargar_datos()
+num_filas = st.slider('Seleccione el número de filas de datos', min_value=100, max_value=1000, step=100)
+datos = generar_datos(num_filas)
 
 # Mostrar los datos en una tabla
-st.subheader('Datos')
+st.subheader('Datos Generados')
 st.write(datos)
 
 # Gráfico de barras
