@@ -1,40 +1,32 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import psycopg2
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-"""
-# Welcome to Streamlit!
+# Conectarse a la base de datos
+conn = psycopg2.connect(
+    "postgresql://analyst:n5NwBhOz9kEc@ep-soft-king-a5iqrjku.us-east-2.aws.neon.tech/tg"
+)
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Consulta SQL para obtener la cantidad total de user_id
+query = "SELECT COUNT(user_id) AS total_users FROM users_keys"
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Ejecutar la consulta y obtener los datos en un DataFrame
+df = pd.read_sql(query, conn)
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# Cerrar la conexión a la base de datos
+conn.close()
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+# Mostrar el resultado en un gráfico
+st.title('Cantidad Total de user_id')
+st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+# Crear el gráfico
+plt.figure(figsize=(8, 6))
+sns.barplot(x=df.index, y='total_users', data=df)
+plt.xlabel('Usuarios')
+plt.ylabel('Cantidad')
+plt.title('Cantidad Total de user_id')
+st.pyplot()
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
