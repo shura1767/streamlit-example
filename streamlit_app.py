@@ -12,7 +12,7 @@ conn = psycopg2.connect(
 )
 
 # Consulta SQL para obtener la cantidad de usuarios
-query_users_count = "SELECT COUNT(user_id) FROM users_tokens;"
+query_users_count = "SELECT COUNT(DISTINCT user_id) FROM users_tokens;"
 
 # Consulta SQL para obtener la cantidad de usuarios creados por fecha
 query_users_by_date = "SELECT date_created, COUNT(DISTINCT anon_user_id) AS user_count FROM users GROUP BY date_created;"
