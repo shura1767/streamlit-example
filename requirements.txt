@@ -2,3 +2,5 @@ altair
 pandas
 streamlit
 psycopg2-binary
+matplotlib
+seaborn
