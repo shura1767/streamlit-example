@@ -22,3 +22,32 @@ conn.close()
 st.title('Cantidad Total de user_id')
 st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
 
+
+# Consulta SQL para obtener los datos
+query2 = "SELECT source, source_url, COUNT(id) as count FROM resumes GROUP BY source, source_url"
+
+# Ejecutar la consulta y obtener los datos en un DataFrame
+df = pd.read_sql(query2, conn)
+
+# Cerrar la conexión a la base de datos
+conn.close()
+
+# Calcular porcentajes
+df['total'] = df.groupby('source')['count'].transform('sum')
+df['percentage'] = (df['count'] / df['total']) * 100
+
+# Crear el gráfico
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Graficar
+for i, (source, group) in enumerate(df.groupby('source')):
+    ax.barh(group['source_url'], group['percentage'], label=source)
+
+# Personalizar el gráfico
+ax.set_xlabel('Porcentaje (%)')
+ax.set_ylabel('source_url')
+ax.set_title('Diferencia de source_url vs source en porcentaje en relación a id')
+ax.legend()
+
+# Mostrar el gráfico
+st.pyplot(fig)
