@@ -23,10 +23,10 @@ st.title('Cantidad Total de user_id')
 st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
 
 # Crear el gráfico
-plt.figure(figsize=(8, 6))
-sns.barplot(x=df.index, y='total_users', data=df)
-plt.xlabel('Usuarios')
-plt.ylabel('Cantidad')
-plt.title('Cantidad Total de user_id')
-st.pyplot(plt.gcf())
-
+#plt.figure(figsize=(8, 6))
+#sns.barplot(x=df.index, y='total_users', data=df)
+#plt.xlabel('Usuarios')
+#plt.ylabel('Cantidad')
+#plt.title('Cantidad Total de user_id')
+#st.pyplot(plt.gcf())
+st.info(f"La cantidad total de usuarios es: {df['total_users'][0]}")
