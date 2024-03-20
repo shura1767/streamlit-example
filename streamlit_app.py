@@ -15,7 +15,7 @@ conn = psycopg2.connect(
 query_users_count = "SELECT COUNT(DISTINCT user_id) FROM users_tokens;"
 
 # Consulta SQL para obtener la cantidad de usuarios creados por fecha
-query_users_by_date = "SELECT date_created, COUNT(DISTINCT user_id) AS user_count FROM users GROUP BY date_created;"
+query_users_by_date = "SELECT date_created, COUNT(DISTINCT anon_user_id) AS user_count FROM users GROUP BY date_created;"
 
 # Consulta SQL para obtener la cantidad de source_url vs source
 query_source_counts = "SELECT COUNT(DISTINCT source_url) AS url_count, COUNT(DISTINCT source) AS source_count FROM resumes;"
