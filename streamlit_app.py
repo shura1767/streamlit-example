@@ -1,31 +1,56 @@
 import streamlit as st
-import pandas as pd
 import psycopg2
+import pandas as pd
 import matplotlib.pyplot as plt
 
-# Conectarse a la base de datos
+# Conexión a la base de datos PostgreSQL
 conn = psycopg2.connect(
-    "postgresql://analyst:n5NwBhOz9kEc@ep-soft-king-a5iqrjku.us-east-2.aws.neon.tech/tg"
+    dbname="tg",
+    user="analyst",
+    password="n5NwBhOz9kEc",
+    host="ep-soft-king-a5iqrjku.us-east-2.aws.neon.tech"
 )
 
-# Consulta SQL para obtener la cantidad total de user_id
-query = "SELECT COUNT(user_id) AS total_users FROM users_keys"
+# Consulta SQL para obtener la cantidad de usuarios
+query_users_count = "SELECT COUNT(DISTINCT user_id) FROM user_tokens;"
 
-# Ejecutar la consulta y obtener los datos en un DataFrame
-df = pd.read_sql(query, conn)
+# Consulta SQL para obtener la cantidad de usuarios creados por fecha
+query_users_by_date = "SELECT date_created, COUNT(DISTINCT user_id) AS user_count FROM users GROUP BY date_created;"
 
-# Cerrar la conexión a la base de datos
+# Consulta SQL para obtener la cantidad de source_url vs source
+query_source_counts = "SELECT COUNT(DISTINCT source_url) AS url_count, COUNT(DISTINCT source) AS source_count FROM resumes;"
+
+# Ejecutar consultas SQL y obtener resultados
+cur = conn.cursor()
+cur.execute(query_users_count)
+user_count = cur.fetchone()[0]
+
+cur.execute(query_users_by_date)
+users_by_date = cur.fetchall()
+users_by_date_df = pd.DataFrame(users_by_date, columns=['Date', 'User Count'])
+users_by_date_df['Date'] = pd.to_datetime(users_by_date_df['Date'])
+
+cur.execute(query_source_counts)
+source_counts = cur.fetchone()
+url_count = source_counts[0]
+source_count = source_counts[1]
+
+# Cerrar conexión
+cur.close()
 conn.close()
 
-# Crear el gráfico circular
-labels = ['Usuarios', 'Otros']
-sizes = [df['total_users'][0], 100 - df['total_users'][0]]
+# Crear el dashboard con Streamlit
+st.title('Dashboard PostgreSQL')
 
-fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-ax.axis('equal')  # La relación de aspecto igual asegura que el gráfico sea un círculo.
+# Mostrar la cantidad total de usuarios
+st.subheader('Cantidad total de usuarios:')
+st.write(user_count)
 
-# Mostrar el gráfico circular en Streamlit
-st.title('Cantidad Total de user_id')
-st.write(f"La cantidad total de user_id es: {df['total_users'][0]}")
-st.pyplot(fig)
+# Gráfico de cantidad de usuarios creados por fecha
+st.subheader('Cantidad de usuarios creados por fecha:')
+st.line_chart(users_by_date_df.set_index('Date'))
+
+# Porcentaje de source_url vs source
+st.subheader('Porcentaje de source_url vs source:')
+st.write(f'Porcentaje de source_url: {url_count / (url_count + source_count) * 100:.2f}%')
+st.write(f'Porcentaje de source: {source_count / (url_count + source_count) * 100:.2f}%')
